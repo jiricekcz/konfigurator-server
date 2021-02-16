@@ -1,0 +1,22 @@
+{
+  "name": "konfigurator",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "build": "./node_modules/.bin/tsc",
+    "run": "./node_modules/.bin/ts-node-dev ./index.ts"
+  },
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "@types/mysql": "^2.15.17",
+    "@types/node": "^14.14.27",
+    "@types/ws": "^7.4.0",
+    "mysql": "^2.18.1",
+    "ts-node-dev": "^1.1.1",
+    "typescript": "^4.1.5",
+    "ws": "^7.4.3"
+  }
+}
