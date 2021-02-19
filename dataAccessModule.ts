@@ -1,5 +1,8 @@
 import bcrypt from "bcrypt";
 
+import crypto from "crypto";
+
+
 import * as sql from "./sql";
 
 export async function init(): Promise<any> {
@@ -23,4 +26,46 @@ export async function getAllEmails(): Promise<Array<string>> {
 export async function emailUsed(email: string): Promise<boolean> {
     const q = `SELECT email FROM users WHERE email = "${email}";`;
     return (await sql.query(q)).length > 0;
+}
+export class Project {
+    file: string;
+    owner: string;
+    editors: Array<string>;
+    id: string;
+    name: string;
+    static readonly cache: any = {};
+    constructor(file: string, owner: string, editors: Array<string>, id: string, name: string) {
+        this.file = file;
+        this.owner = owner;
+        this.editors = editors;
+        this.id = id;
+        this.name = name;
+        this.cache();
+    }
+    cache(): void {
+        Project.cache[this.id] = this;
+    }
+    uncache(): void {
+        delete Project.cache[this.id];
+    }
+    static async fromID(id: string): Promise<Project | null> {
+        if (Project.cache[id]) return Project.cache[id];
+        const q = `SELECT * FROM projects WHERE id = "${id}";`;
+        var p = await sql.query(q);
+        if (p.length != 1) return null;
+        return new this(p[0].content, p[0].owner, JSON.parse(p[0].editors), p[0].id, p[0].name);
+    }
+    static async create(owner: string, name: string): Promise<Project> {
+        const id = await Project.createID();
+        const q = `INSERT INTO porjects (owner, name, editors, content, id) VALUES ("${owner}", "${name}", "[]", "", "${id}")`;
+        await sql.query(q);
+        return new this("", owner, [], id, name);
+    }
+    private static async createID(): Promise<string> {
+        const q = `SELECT id FROM projects;`;
+        var p = (await sql.query(q)).map(r => r.id);
+        var rv: string = crypto.randomBytes(64).toString("base64");
+        while (p.includes(rv)) rv = crypto.randomBytes(64).toString("base64");
+        return rv;
+    }
 }

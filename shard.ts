@@ -1,5 +1,8 @@
 import ws from "ws";
 
+import * as projects from "./actions/projects";
+
+
 import register from "./actions/register";
 import login from "./actions/login";
 
@@ -67,6 +70,11 @@ async function requestHandler(action: string, data: any, shard: Shard): Promise<
         };
         case "registration": {
             return await register(data);
+        }
+        case "createProject": {
+            if (!shard.data.authorized) return false;
+            if (!shard.data.email) return false;
+            return await projects.create(data, shard.data.email);
         }
     }
 }
