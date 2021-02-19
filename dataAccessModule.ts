@@ -20,3 +20,7 @@ export async function getAllEmails(): Promise<Array<string>> {
     const q = `SELECT email FROM users;`;
     return (await sql.query(q)).map(h => h.email);
 }
+export async function emailUsed(email: string): Promise<boolean> {
+    const q = `SELECT email FROM users WHERE email = "${email}";`;
+    return (await sql.query(q)).length > 0;
+}

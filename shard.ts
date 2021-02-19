@@ -1,5 +1,6 @@
 import ws from "ws";
 
+import register from "./actions/register";
 import login from "./actions/login";
 
 export default class Shard {
@@ -61,8 +62,12 @@ async function requestHandler(action: string, data: any, shard: Shard): Promise<
         case "login": {
             var auth = await login(data);
             shard.data.authorized = auth;
+            shard.data.email = data.email;
             return auth;
         };
+        case "registration": {
+            return await register(data);
+        }
     }
 }
 async function eventHandler(event: string, args: any[], shard: Shard): Promise<void> {
