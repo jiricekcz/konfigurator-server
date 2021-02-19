@@ -64,9 +64,13 @@ export class Project {
     }
     static async create(owner: string, name: string): Promise<Project> {
         const id = await Project.createID();
-        const q = `INSERT INTO porjects (owner, name, editors, content, id) VALUES ("${owner}", "${name}", "[]", "", "${id}")`;
+        const q = `INSERT INTO projects (owner, name, editors, content, id) VALUES ("${owner}", "${name}", "[]", "", "${id}")`;
         await sql.query(q);
         return new this("", owner, [], id, name);
+    }
+    static async getOwnedIDs(owner: string): Promise<Array<string>> {
+        const q = `SELECT id FROM projects WHERE owner = "${owner}";`;
+        return (await sql.query(q)).map(r => r.id);
     }
     private static async createID(): Promise<string> {
         const q = `SELECT id FROM projects;`;

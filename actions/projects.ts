@@ -21,3 +21,6 @@ export async function udpate(id: string, data: string, email?: string): Promise<
     p.update(data);
     return true;
 }
+export async function getOwnedIDs(email: string): Promise<Array<string>> {
+    return await dam.Project.getOwnedIDs(email);
+}

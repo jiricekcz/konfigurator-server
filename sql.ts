@@ -11,6 +11,7 @@ export function init(): Promise<void> {
 export function query(sql: string): Promise<Array<any>> {
     return new Promise<Array<any>>((resolve, reject) => {
         database.all(sql, (err, res) => {
+            if (err) console.log(err);
             return resolve(res);
         })
     })

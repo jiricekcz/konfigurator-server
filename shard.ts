@@ -89,6 +89,12 @@ async function requestHandler(action: string, data: any, shard: Shard): Promise<
             if (!p) return false;
             if (!fileUpdateListeners[data.id]) fileUpdateListeners[data.id] = [];
             fileUpdateListeners[data.id].push(shard);
+            return true;
+        }
+        case "getMyProjectIDs": {
+            if (!shard.data.authorized) return false;
+            if (!shard.data.email) return false;
+            return await projects.getOwnedIDs(shard.data.email);
         }
     }
 }
@@ -96,6 +102,7 @@ async function eventHandler(event: string, args: any[], shard: Shard): Promise<v
     switch (event) {
         case "projectUpdated": {
             if (!shard.data.authorized) return;
+            console.log(args);
             if (projects.udpate(args[0], args[1], shard.data.email)) emitFileChange(args[0], shard);
             return;
         }
@@ -105,7 +112,7 @@ async function emitFileChange(id: string, shard: Shard): Promise<void> {
     if (!fileUpdateListeners[id]) fileUpdateListeners[id] = [];
     var p = await dam.Project.fromID(id);
     for (const s of fileUpdateListeners[id]) {
-        if (s != shard) s.emit("fileUpdated", p?.file);
+        if (s != shard) s.emit("projectUpdated", id, p?.file);
     }
 }
 interface DataObject {
