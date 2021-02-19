@@ -48,6 +48,9 @@ export class Project {
     uncache(): void {
         delete Project.cache[this.id];
     }
+    update(data: string): void {
+        this.file = data;
+    }
     async save(): Promise<void> {
         var q = `UPDATE projects SET owner="${this.owner}", editors="${this.editors}", content="${this.file}", name="${this.name}";`;
         return void await sql.query(q);
