@@ -76,6 +76,11 @@ async function requestHandler(action: string, data: any, shard: Shard): Promise<
             if (!shard.data.email) return false;
             return await projects.create(data, shard.data.email);
         }
+        case "saveProject": {
+            if (!shard.data.authorized) return false;
+            if (!shard.data.email) return false;
+            return await projects.save(data);
+        }
     }
 }
 async function eventHandler(event: string, args: any[], shard: Shard): Promise<void> {
