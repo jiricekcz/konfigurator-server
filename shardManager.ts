@@ -1,7 +1,7 @@
 import ws from "ws";
 import Shard from "./shard";
 export default class ShardManager extends Array<Shard>{
-    constructor () {
+    constructor() {
         super();
     }
     addShard(shard: Shard): void {
@@ -9,5 +9,8 @@ export default class ShardManager extends Array<Shard>{
     }
     addSocket(socket: ws): void {
         this.push(new Shard(socket));
+    }
+    removeAt(index: number): void {
+        this.splice(index, 1);
     }
 }

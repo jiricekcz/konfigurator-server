@@ -1,4 +1,7 @@
 import ws from "ws";
+
+import login from "./actions/login";
+
 export default class Shard {
     readonly socket: ws;
     data: SocketData;
@@ -20,16 +23,16 @@ export default class Shard {
 
             if (data.type == "event") {
                 if (!data.event) return this.send({ success: false, message: "Event name must be provided." });
-                eventHandler(data.event, data.args || []);
+                eventHandler(data.event, data.args || [], this);
                 return;
             }
             if (!data.action) return this.send({ success: false, message: "Action needs to be provided." });
             if (data.type == "message") {
-                messageHandler(data.action, data.data);
+                messageHandler(data.action, data.data, this);
             } else {
                 if (!data.ruuid) return this.send({ success: false, message: "RUUID must be provided for unique identification of a request." });
                 const ruuid = data.ruuid;
-                const resp = await requestHandler(data.action, data.data.body);
+                const resp = await requestHandler(data.action, data.data, this);
                 const obj = { success: true, ruuid, body: resp };
                 this.send(obj);
                 return;
@@ -47,15 +50,22 @@ export default class Shard {
         });
     }
 }
-function messageHandler(action: string, message: any): void {
+function messageHandler(action: string, message: any, shard: Shard): void {
     console.log(action + ": " + message);
 }
-async function requestHandler(action: string, data: any): Promise<any> {
+async function requestHandler(action: string, data: any, shard: Shard): Promise<any> {
+    shard.emit("gay", Math.random());
+    console.log(action);
     switch (action) {
         case "ping": return "Pong!";
+        case "login": {
+            var auth = await login(data);
+            shard.data.authorized = auth;
+            return auth;
+        };
     }
 }
-async function eventHandler(event: string, args: any[]): Promise<void> {
+async function eventHandler(event: string, args: any[], shard: Shard): Promise<void> {
 
 }
 interface DataObject {
