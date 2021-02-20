@@ -63,6 +63,10 @@ export class Project {
         var q = `UPDATE projects SET owner="${this.owner}", editors="${this.editors}", content="${this.file}", name="${this.name}";`;
         return void await sql.query(q);
     }
+    async delete(): Promise<void> {
+        var q = `DELETE FROM projects WHERE id="${this.id}";`;
+        return void await sql.query(q);
+    }
     static async fromID(id: string): Promise<Project | null> {
         if (Project.cache[id]) return Project.cache[id];
         const q = `SELECT * FROM projects WHERE id = "${id}";`;

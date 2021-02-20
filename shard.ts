@@ -77,13 +77,11 @@ async function requestHandler(action: string, data: any, shard: Shard): Promise<
             return await register(data);
         }
         case "createProject": {
-            if (!shard.data.authorized) return false;
-            if (!shard.data.email) return false;
+            if (!shard.data.authorized || !shard.data.email) return false;
             return await projects.create(data, shard.data.email);
         }
         case "saveProject": {
-            if (!shard.data.authorized) return false;
-            if (!shard.data.email) return false;
+            if (!shard.data.authorized || !shard.data.email) return false;
             return await projects.save(data);
         }
         case "listenForProjectUpdates": {
@@ -95,16 +93,14 @@ async function requestHandler(action: string, data: any, shard: Shard): Promise<
             return true;
         }
         case "getMyProjectIDs": {
-            if (!shard.data.authorized) return false;
-            if (!shard.data.email) return false;
+            if (!shard.data.authorized || !shard.data.email) return false;
             return await projects.getOwnedIDs(shard.data.email);
         }
         case "getProjectDetails": {
             return await projects.getProjectDetails(data);
         }
         case "deleteAccount": {
-            if (!shard.data.authorized) return false;
-            if (!shard.data.email) return false;
+            if (!shard.data.authorized || !shard.data.email) return false;
             await dam.deleteUser(shard.data.email);
             return true;
         }
@@ -120,6 +116,45 @@ async function requestHandler(action: string, data: any, shard: Shard): Promise<
             if (!shard.data.authorized) return;
             if (!shard.data.email) return;
             return dam.getName(shard.data.email);
+        }
+        case "editShareProject": {
+            if (!shard.data.authorized || !shard.data.email || !data.id || !data.email) return false;
+            const p = await dam.Project.fromID(data.id);
+            if (!p || p.owner !== shard.data.email) return false;
+            if (!p.editors.includes(data.email)) p.editors.push(data.email);
+            await p.save();
+            return true;
+        }
+        case "transferOwnership": {
+            if (!shard.data.authorized || !shard.data.email || !data.id || !data.email) return false;
+            const p = await dam.Project.fromID(data.id);
+            if (!p || p.owner !== shard.data.email) return false;
+            p.owner = data.email;
+            await p.save();
+            return true;
+        }
+        case "changeProjectName": {
+            if (!shard.data.authorized || !shard.data.email || !data.id || !data.name) return false;
+            const p = await dam.Project.fromID(data.id);
+            if (!p || (p.owner !== shard.data.email && !p.editors.includes(shard.data.email))) return false;
+            p.name = data.name;
+            await p.save();
+            return true;
+        }
+        case "removeEditorFromProject": {
+            if (!shard.data.authorized || !shard.data.email || !data.id || !data.email) return false;
+            const p = await dam.Project.fromID(data.id);
+            if (!p || p.owner !== shard.data.email) return false;
+            if (p.editors.includes(data.email)) p.editors = p.editors.filter(e => e !== data.email);
+            await p.save();
+            return true;
+        }
+        case "deleteProject": {
+            if (!shard.data.authorized || !shard.data.email || !data.id ) return false;
+            const p = await dam.Project.fromID(data.id);
+            if (!p || p.owner !== shard.data.email) return false;
+            await p.delete();
+            return true;
         }
     }
 }
