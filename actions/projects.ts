@@ -18,9 +18,14 @@ export async function udpate(id: string, data: string, email?: string): Promise<
     if (!id || !data || !email) return false;
     const p = await dam.Project.fromID(id);
     if (!p || (p.owner !== email && !p.editors.includes(email))) return false;
+    var prev = p.file;
     p.update(data);
+    if (p.file == prev) return false;
     return true;
 }
 export async function getOwnedIDs(email: string): Promise<Array<string>> {
     return await dam.Project.getOwnedIDs(email);
+}
+export async function getProjectDetails(data: any): Promise<dam.Project | null> {
+    return await dam.Project.fromID(data.id);
 }

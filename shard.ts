@@ -96,13 +96,21 @@ async function requestHandler(action: string, data: any, shard: Shard): Promise<
             if (!shard.data.email) return false;
             return await projects.getOwnedIDs(shard.data.email);
         }
+        case "getProjectDetails": {
+            return await projects.getProjectDetails(data);
+        }
+        case "deleteAccount": {
+            if (!shard.data.authorized) return false;
+            if (!shard.data.email) return false;
+            await dam.deleteUser(shard.data.email);
+            return true;
+        }
     }
 }
 async function eventHandler(event: string, args: any[], shard: Shard): Promise<void> {
     switch (event) {
         case "projectUpdated": {
             if (!shard.data.authorized) return;
-            console.log(args);
             if (projects.udpate(args[0], args[1], shard.data.email)) emitFileChange(args[0], shard);
             return;
         }

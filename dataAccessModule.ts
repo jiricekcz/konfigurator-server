@@ -1,6 +1,7 @@
 import bcrypt from "bcrypt";
 
 import crypto from "crypto";
+import { isPropertyAccessOrQualifiedName } from "typescript";
 
 
 import * as sql from "./sql";
@@ -26,6 +27,10 @@ export async function getAllEmails(): Promise<Array<string>> {
 export async function emailUsed(email: string): Promise<boolean> {
     const q = `SELECT email FROM users WHERE email = "${email}";`;
     return (await sql.query(q)).length > 0;
+}
+export async function deleteUser(email: string): Promise<void> {
+    const q = `DELETE FROM users WHERE email = "${email}"`;
+    return void await sql.query(q);
 }
 export class Project {
     file: string;
