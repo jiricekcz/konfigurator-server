@@ -82,7 +82,7 @@ async function requestHandler(action: string, data: any, shard: Shard): Promise<
         }
         case "saveProject": {
             if (!shard.data.authorized || !shard.data.email) return false;
-            return await projects.save(data);
+            return await projects.save(data, shard.data.email);
         }
         case "listenForProjectUpdates": {
             if (!data.id) return false;

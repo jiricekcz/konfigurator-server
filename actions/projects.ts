@@ -1,4 +1,5 @@
 import * as dam from '../dataAccessModule'
+import shard from '../shard';
 
 
 export async function create(data: any, owner: string): Promise<boolean> {
@@ -7,10 +8,10 @@ export async function create(data: any, owner: string): Promise<boolean> {
     await dam.Project.create(owner, name);
     return true;
 }
-export async function save(data: any): Promise<boolean> {
+export async function save(data: any, email: string): Promise<boolean> {
     if (!data.id) return false;
     const p = await dam.Project.fromID(data.id);
-    if (!p) return false;
+    if (!p || p.owner !== email && !p.editors.includes(email)) return false;
     await p.save();
     return true;
 }
