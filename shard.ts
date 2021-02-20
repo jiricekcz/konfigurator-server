@@ -1,5 +1,8 @@
 import ws from "ws";
 
+import * as keyManager from "./keyManager";
+
+
 import * as dam from "./dataAccessModule";
 
 
@@ -104,6 +107,14 @@ async function requestHandler(action: string, data: any, shard: Shard): Promise<
             if (!shard.data.email) return false;
             await dam.deleteUser(shard.data.email);
             return true;
+        }
+        case "keyAuth": {
+            if (!data.key) return false;
+            shard.data = keyManager.getDataFromKey(data.key);
+            return shard.data;
+        }
+        case "generateKey": {
+            return keyManager.createKey(shard.data);
         }
     }
 }
