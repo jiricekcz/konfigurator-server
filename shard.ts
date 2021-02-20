@@ -156,6 +156,9 @@ async function requestHandler(action: string, data: any, shard: Shard): Promise<
             await p.delete();
             return true;
         }
+        case "getEmail": {
+            return shard.data.email;
+        }
     }
 }
 async function eventHandler(event: string, args: any[], shard: Shard): Promise<void> {

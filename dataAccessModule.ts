@@ -60,7 +60,7 @@ export class Project {
         this.file = data;
     }
     async save(): Promise<void> {
-        var q = `UPDATE projects SET owner="${this.owner}", editors="${this.editors}", content="${this.file}", name="${this.name}";`;
+        var q = `UPDATE projects SET owner="${this.owner}", editors="${this.editors}", content='${this.file}', name="${this.name}";`;
         return void await sql.query(q);
     }
     async delete(): Promise<void> {
@@ -76,9 +76,9 @@ export class Project {
     }
     static async create(owner: string, name: string): Promise<Project> {
         const id = await Project.createID();
-        const q = `INSERT INTO projects (owner, name, editors, content, id) VALUES ("${owner}", "${name}", "[]", "", "${id}")`;
+        const q = `INSERT INTO projects (owner, name, editors, content, id) VALUES ("${owner}", "${name}", "[]", '{"closed":false,"tool":0,"points":[],"addLines":[],"profiles":[]}', "${id}")`;
         await sql.query(q);
-        return new this("", owner, [], id, name);
+        return new this('{"closed":false,"tool":0,"points":[],"addLines":[],"profiles":[]}', owner, [], id, name);
     }
     static async getOwnedIDs(owner: string): Promise<Array<string>> {
         const q = `SELECT id FROM projects WHERE owner = "${owner}";`;
