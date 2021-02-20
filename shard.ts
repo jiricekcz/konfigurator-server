@@ -116,6 +116,11 @@ async function requestHandler(action: string, data: any, shard: Shard): Promise<
         case "generateKey": {
             return keyManager.createKey(shard.data);
         }
+        case "getName": {
+            if (!shard.data.authorized) return;
+            if (!shard.data.email) return;
+            return dam.getName(shard.data.email);
+        }
     }
 }
 async function eventHandler(event: string, args: any[], shard: Shard): Promise<void> {

@@ -31,6 +31,10 @@ export async function deleteUser(email: string): Promise<void> {
     const q = `DELETE FROM users WHERE email = "${email}"`;
     return void await sql.query(q);
 }
+export async function getName(email: string): Promise<string> {
+    const q = `SELECT name FROM users WHERE email = "${email}";`;
+    return (await sql.query(q))[0].name;
+}
 export class Project {
     file: string;
     owner: string;
