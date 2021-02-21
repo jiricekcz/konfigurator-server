@@ -169,16 +169,16 @@ async function eventHandler(event: string, args: any[], shard: Shard): Promise<v
     switch (event) {
         case "projectUpdated": {
             if (!shard.data.authorized) return;
-            if (projects.udpate(args[0], args[1], shard.data.email)) emitFileChange(args[0], shard);
+            if (projects.udpate(args[0], args[1], shard.data.email)) emitFileChange(args[0], shard, args[2]);
             return;
         }
     }
 }
-async function emitFileChange(id: string, shard: Shard): Promise<void> {
+async function emitFileChange(id: string, shard: Shard, partOfRevertStack: boolean): Promise<void> {
     if (!fileUpdateListeners[id]) fileUpdateListeners[id] = [];
     var p = await dam.Project.fromID(id);
     for (const s of fileUpdateListeners[id]) {
-        if (s != shard) s.emit("projectUpdated", id, p?.file);
+        if (s != shard) s.emit("projectUpdated", id, p?.file, partOfRevertStack);
     }
 }
 interface DataObject {
