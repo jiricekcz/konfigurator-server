@@ -93,6 +93,15 @@ async function requestHandler(action: string, data: any, shard: Shard): Promise<
             emitListenerChange(data.id, shard, "connected", shard.data.email);
             return true;
         }
+        case "stopListenForProjectUpdates": {
+            if (!data.id) return false;
+            const p = dam.Project.fromID(data.id);
+            if (!p) return false;
+            if (!fileUpdateListeners[data.id]) fileUpdateListeners[data.id] = [];
+            fileUpdateListeners[data.id] = fileUpdateListeners[data.id].filter((v: Shard) => v != shard);
+            emitListenerChange(data.id, shard, "disconnected", shard.data.email);
+            return true;
+        }
         case "getMyProjectIDs": {
             if (!shard.data.authorized || !shard.data.email) return false;
             return await projects.getOwnedIDs(shard.data.email);
