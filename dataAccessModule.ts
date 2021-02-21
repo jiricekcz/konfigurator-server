@@ -41,6 +41,7 @@ export class Project {
     editors: Array<string>;
     id: string;
     name: string;
+    editRestricted: boolean = false; 
     static readonly cache: any = {};
     constructor(file: string, owner: string, editors: Array<string>, id: string, name: string) {
         this.file = file;

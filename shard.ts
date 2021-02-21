@@ -160,8 +160,16 @@ async function requestHandler(action: string, data: any, shard: Shard): Promise<
             return shard.data.email;
         }
         case "forkProject": {
-            if (!data.id || !shard.data.authorized ||!shard.data.email) return "";
+            if (!data.id || !shard.data.authorized || !shard.data.email) return "";
             return await projects.fork(data.id, shard.data.email);
+        }
+        case "restrictProjectEdit": {
+            if (!data.id || !shard.data.authorized || !shard.data.email) return false;
+            return await projects.restrictEdit(data.id, shard.data.email);
+        }
+        case "liftProjectEditRestriction": {
+            if (!data.id || !shard.data.authorized || !shard.data.email) return false;
+            return await projects.liftEditRestriction(data.id, shard.data.email);
         }
     }
 }

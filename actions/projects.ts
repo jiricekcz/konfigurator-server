@@ -15,14 +15,14 @@ export async function create(data: any, owner: string): Promise<string> {
 export async function save(data: any, email: string): Promise<boolean> {
     if (!data.id) return false;
     const p = await dam.Project.fromID(data.id);
-    if (!p || p.owner !== email && !p.editors.includes(email)) return false;
+    if (!p || p.owner !== email && !p.editors.includes(email) || p.editRestricted) return false;
     await p.save();
     return true;
 }
 export async function udpate(id: string, data: string, email?: string): Promise<boolean> {
     if (!id || !data || !email) return false;
     const p = await dam.Project.fromID(id);
-    if (!p || (p.owner !== email && !p.editors.includes(email))) return false;
+    if (!p || (p.owner !== email && !p.editors.includes(email)) || p.editRestricted) return false;
     var prev = p.file;
     p.update(data);
     if (p.file == prev) return false;
@@ -33,4 +33,18 @@ export async function getOwnedIDs(email: string): Promise<Array<string>> {
 }
 export async function getProjectDetails(data: any): Promise<dam.Project | null> {
     return await dam.Project.fromID(data.id);
+}
+export async function restrictEdit(id: string, email: string): Promise<boolean> {
+    if (!id || !email) return false;
+    const p = await dam.Project.fromID(id);
+    if (!p || (p.owner !== email && !p.editors.includes(email))) return false;
+    p.editRestricted = true;
+    return true;
+}
+export async function liftEditRestriction(id: string, email: string): Promise<boolean> {
+    if (!id || !email) return false;
+    const p = await dam.Project.fromID(id);
+    if (!p || (p.owner !== email && !p.editors.includes(email))) return false;
+    p.editRestricted = false;
+    return true;
 }
