@@ -90,6 +90,7 @@ async function requestHandler(action: string, data: any, shard: Shard): Promise<
             if (!p) return false;
             if (!fileUpdateListeners[data.id]) fileUpdateListeners[data.id] = [];
             fileUpdateListeners[data.id].push(shard);
+            emitListenerChange(data.id, shard, "connected", shard.data.email);
             return true;
         }
         case "getMyProjectIDs": {
@@ -171,6 +172,12 @@ async function requestHandler(action: string, data: any, shard: Shard): Promise<
             if (!data.id || !shard.data.authorized || !shard.data.email) return false;
             return await projects.liftEditRestriction(data.id, shard.data.email);
         }
+        case "getProjectListeners": {
+            if (!shard.data.authorized || !shard.data.email || !data.id) return false;
+            const p = await dam.Project.fromID(data.id);
+            if (!p || (p.owner !== shard.data.email && !p.editors.includes(shard.data.email))) return false;
+            return fileUpdateListeners[data.id].map((v: Shard) => v.data.email);
+        }
     }
 }
 async function eventHandler(event: string, args: any[], shard: Shard): Promise<void> {
@@ -187,6 +194,12 @@ async function emitFileChange(id: string, shard: Shard, partOfRevertStack: boole
     var p = await dam.Project.fromID(id);
     for (const s of fileUpdateListeners[id]) {
         if (s != shard) s.emit("projectUpdated", id, p?.file, partOfRevertStack);
+    }
+}
+async function emitListenerChange(id: string, shard: Shard, type: "connected" | "disconnected", email?: string): Promise<void> {
+    if (!fileUpdateListeners[id]) fileUpdateListeners[id] = [];
+    for (const s of fileUpdateListeners[id]) {
+        if (s != shard) s.emit("listenerUpdate", id, type, email);
     }
 }
 interface DataObject {
