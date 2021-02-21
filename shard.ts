@@ -150,7 +150,7 @@ async function requestHandler(action: string, data: any, shard: Shard): Promise<
             return true;
         }
         case "deleteProject": {
-            if (!shard.data.authorized || !shard.data.email || !data.id ) return false;
+            if (!shard.data.authorized || !shard.data.email || !data.id) return false;
             const p = await dam.Project.fromID(data.id);
             if (!p || p.owner !== shard.data.email) return false;
             await p.delete();
@@ -158,6 +158,10 @@ async function requestHandler(action: string, data: any, shard: Shard): Promise<
         }
         case "getEmail": {
             return shard.data.email;
+        }
+        case "forkProject": {
+            if (!data.id || !shard.data.authorized ||!shard.data.email) return "";
+            return await projects.fork(data.id, shard.data.email);
         }
     }
 }

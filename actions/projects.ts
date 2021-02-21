@@ -1,12 +1,16 @@
 import * as dam from '../dataAccessModule'
-import shard from '../shard';
 
-
-export async function create(data: any, owner: string): Promise<boolean> {
-    if (!data.name) return false;
+export async function fork(id: string, email: string): Promise<string> {
+    const p = await dam.Project.fromID(id);
+    if (!p) return "";
+    const pn = await p.fork(email);
+    return pn.id;
+}
+export async function create(data: any, owner: string): Promise<string> {
+    if (!data.name) return "";
     const name = data.name;
-    await dam.Project.create(owner, name);
-    return true;
+    const p = await dam.Project.create(owner, name);
+    return p.id;
 }
 export async function save(data: any, email: string): Promise<boolean> {
     if (!data.id) return false;

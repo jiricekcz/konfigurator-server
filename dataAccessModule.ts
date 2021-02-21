@@ -65,7 +65,14 @@ export class Project {
     }
     async delete(): Promise<void> {
         var q = `DELETE FROM projects WHERE id="${this.id}";`;
+        this.uncache();
         return void await sql.query(q);
+    }
+    async fork(newOwner: string): Promise<Project> {
+        const id = await Project.createID();
+        const q = `INSERT INTO projects (owner, name, editors, content, id) VALUES ("${newOwner}", "${this.name}", "[]", '${this.file}', "${id}")`;
+        await sql.query(q);
+        return new Project(this.file, newOwner, [], id, this.name);
     }
     static async fromID(id: string): Promise<Project | null> {
         if (Project.cache[id]) return Project.cache[id];
