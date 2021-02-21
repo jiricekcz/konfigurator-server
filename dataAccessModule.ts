@@ -41,7 +41,7 @@ export class Project {
     editors: Array<string>;
     id: string;
     name: string;
-    editRestricted: boolean = false; 
+    editRestricted: boolean = false;
     static readonly cache: any = {};
     constructor(file: string, owner: string, editors: Array<string>, id: string, name: string) {
         this.file = file;
@@ -80,7 +80,13 @@ export class Project {
         const q = `SELECT * FROM projects WHERE id = "${id}";`;
         var p = await sql.query(q);
         if (p.length != 1) return null;
-        return new this(p[0].content, p[0].owner, JSON.parse(p[0].editors), p[0].id, p[0].name);
+        var editors: Array<string>;
+        try {
+            editors = JSON.parse(p[0].editors);
+        } catch (e) {
+            editors = [];
+        }
+        return new this(p[0].content, p[0].owner, editors, p[0].id, p[0].name);
     }
     static async create(owner: string, name: string): Promise<Project> {
         const id = await Project.createID();
