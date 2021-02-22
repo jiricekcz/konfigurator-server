@@ -96,7 +96,13 @@ export class Project {
     }
     static async getOwnedIDs(owner: string): Promise<Array<string>> {
         const q = `SELECT id FROM projects WHERE owner = "${owner}";`;
-        return (await sql.query(q)).map(r => r.id);
+        const ids: Array<string> = (await sql.query(q)).map(r => r.id) 
+        return ids.filter(v => {
+            if (!Project.cache[v] || Project.cache[v].owner == owner) {
+                Project.cache[v].save();
+                return true;
+            } else return false;
+        });
     }
     private static async createID(): Promise<string> {
         const q = `SELECT id FROM projects;`;

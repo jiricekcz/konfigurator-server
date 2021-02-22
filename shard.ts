@@ -182,10 +182,9 @@ async function requestHandler(action: string, data: any, shard: Shard): Promise<
             return await projects.liftEditRestriction(data.id, shard.data.email);
         }
         case "getProjectListeners": {
-            if (!shard.data.authorized || !shard.data.email || !data.id) return false;
-            const p = await dam.Project.fromID(data.id);
-            if (!p || (p.owner !== shard.data.email && !p.editors.includes(shard.data.email))) return false;
+            if (!data.id) return false;
             if (!fileUpdateListeners[data.id]) fileUpdateListeners[data.id] = [];
+            fileUpdateListeners[data.id] = fileUpdateListeners[data.id].filter((v: Shard) => v.socket.readyState != v.socket.CLOSED);
             return fileUpdateListeners[data.id].map((v: Shard) => v.data.email);
         }
     }
@@ -213,6 +212,7 @@ async function emitFileChange(id: string, shard: Shard, partOfRevertStack: boole
 }
 async function emitListenerChange(id: string, shard: Shard, type: "connected" | "disconnected", email?: string): Promise<void> {
     if (!fileUpdateListeners[id]) fileUpdateListeners[id] = [];
+    fileUpdateListeners[id] = fileUpdateListeners[id].filter((v: Shard) => v.socket.readyState != v.socket.CLOSED);
     for (const s of fileUpdateListeners[id]) {
         if (s != shard) s.emit("listenerUpdate", id, type, email);
     }
