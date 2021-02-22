@@ -185,6 +185,7 @@ async function requestHandler(action: string, data: any, shard: Shard): Promise<
             if (!shard.data.authorized || !shard.data.email || !data.id) return false;
             const p = await dam.Project.fromID(data.id);
             if (!p || (p.owner !== shard.data.email && !p.editors.includes(shard.data.email))) return false;
+            if (!fileUpdateListeners[data.id]) fileUpdateListeners[data.id] = [];
             return fileUpdateListeners[data.id].map((v: Shard) => v.data.email);
         }
     }
