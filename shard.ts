@@ -201,7 +201,12 @@ async function eventHandler(event: string, args: any[], shard: Shard): Promise<v
 async function emitFileChange(id: string, shard: Shard, partOfRevertStack: boolean): Promise<void> {
     if (!fileUpdateListeners[id]) fileUpdateListeners[id] = [];
     var p = await dam.Project.fromID(id);
-    for (const s of fileUpdateListeners[id]) {
+    for (var i = 0; fileUpdateListeners[id].length; i++) {
+        let s: Shard = fileUpdateListeners[id][i];
+        if (s.socket.readyState == s.socket.CLOSED) {
+            fileUpdateListeners[id] = fileUpdateListeners[id].filter((v: Shard) => v != s);
+            emitListenerChange(id, s, "disconnected", s.data.email);
+        } else
         if (s != shard) s.emit("projectUpdated", id, p?.file, partOfRevertStack);
     }
 }
