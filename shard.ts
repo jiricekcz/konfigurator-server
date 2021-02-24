@@ -196,7 +196,7 @@ async function eventHandler(event: string, args: any[], shard: Shard): Promise<v
             if (projects.udpate(args[0], args[1], shard.data.email)) emitFileChange(args[0], shard, args[2]);
             return;
         }
-        case "messageSent": {
+        case "fileMessage": {
             if(!args[0] || !args[1]) return;
             emitMessage(args[0], args[1]);
         }
