@@ -196,6 +196,17 @@ async function eventHandler(event: string, args: any[], shard: Shard): Promise<v
             if (projects.udpate(args[0], args[1], shard.data.email)) emitFileChange(args[0], shard, args[2]);
             return;
         }
+        case "messageSent": {
+            if(!args[0] || !args[1]) return;
+            emitMessage(args[0], args[1], shard);
+        }
+    }
+}
+async function emitMessage(id: string, message: string, shard: Shard): Promise<void> {
+    if (!fileUpdateListeners[id]) fileUpdateListeners[id] = [];
+    fileUpdateListeners[id] = fileUpdateListeners[id].filter((v: Shard) => v.socket.readyState != v.socket.CLOSED);
+    for (const s of fileUpdateListeners[id]) {
+        if (s != shard) s.emit("fileMessage", id, message);
     }
 }
 async function emitFileChange(id: string, shard: Shard, partOfRevertStack: boolean): Promise<void> {
