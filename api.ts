@@ -192,7 +192,6 @@ class Client {
         return await this.shard.sendRequest("liftProjectEditRestriction", { id });
     }
     async getProjectListeners(id: string): Promise<Array<string>> {
-        if (!this.authorized) throw new Error("Action requires authorization.");
         return await this.shard.sendRequest("getProjectListeners", { id });
     }
 }
