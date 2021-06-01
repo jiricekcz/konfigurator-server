@@ -1,5 +1,5 @@
-const url = "20.71.220.144:3000";
-const wsURL = "ws://" + url;
+const url = "dachkonfigurator.kantmanufaktur.com/";
+const wsURL = "wss://" + url;
 class Shard {
     static count = 0;
     readonly id: number = ++Shard.count;
@@ -15,8 +15,12 @@ class Shard {
         this.init();
 
         setInterval(async () => {
-            console.log(`Shard${this.id}: Ping to the server was ${(await this.ping()) ? "successful" : "unsuccessful"}.`);
-        }, 5 * 60 * 1000);
+            const pingResult = (await this.ping());
+            console.log(`Shard${this.id}: Ping to the server was ${pingResult ? "successful" : "unsuccessful"}.`);
+            if (!pingResult) {
+                this.init();
+            }
+        }, 5 * 1000);
     }
     private init() {
         this.socket.onclose = () => { };
