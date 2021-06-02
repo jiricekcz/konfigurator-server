@@ -13,12 +13,13 @@ class Shard {
         this.url = url;
         this.socket = new WebSocket(this.url);
         this.init();
-
+    
+        const t = this;
         setInterval(async () => {
-            const pingResult = (await this.ping());
-            console.log(`Shard${this.id}: Ping to the server was ${pingResult ? "successful" : "unsuccessful"}.`);
+            const pingResult = (await t.ping());
+            console.log(`Shard${t.id}: Ping to the server was ${pingResult ? "successful" : "unsuccessful"}.`);
             if (!pingResult) {
-                this.init();
+                t.init();
             }
         }, 5 * 1000);
     }
