@@ -1,4 +1,4 @@
-const url = "dachkonfigurator.kantmanufaktur.com/";
+const url = "dachkonfigurator.kantmanufaktur.com:3000";
 const wsURL = "wss://" + url;
 class Shard {
     static count = 0;
